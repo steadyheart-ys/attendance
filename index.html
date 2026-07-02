@@ -54,6 +54,8 @@
     padding:22px 20px 26px;
     box-shadow: var(--card-shadow);
     overflow-x:auto;
+    overflow-y:auto;
+    max-height:72vh;
   }
 
   .grid{
@@ -63,18 +65,22 @@
     min-width:560px;
   }
 
-  .corner{font-family:'Gaegu',cursive;font-size:1rem;color:var(--ink-soft);}
+  .corner{
+    font-family:'Gaegu',cursive;font-size:1rem;color:var(--ink-soft);
+    position:sticky;top:0;background:#fff;z-index:6;padding:4px 0;
+    box-shadow:0 6px 6px -6px rgba(74,63,53,0.15);
+  }
 
   .child-head{
-    position:relative;
+    position:sticky;
+    top:0;
+    z-index:6;
     background:var(--butter);
     border:2px solid #E8B93F;
     border-radius:14px;
     padding:8px 22px 8px 10px;
     text-align:center;
-    transform:rotate(-1.2deg);
   }
-  .child-head:nth-child(even){transform:rotate(1.2deg);}
   .child-head input{
     width:100%;
     border:none;
@@ -105,6 +111,9 @@
     color:var(--sky);
     font-size:1.3rem;
     cursor:pointer;
+    position:sticky;
+    top:0;
+    z-index:6;
     display:flex;align-items:center;justify-content:center;
     justify-self:center;
     transition:transform .15s;
@@ -315,6 +324,63 @@
     outline:none;
   }
   .paste-target:focus{border-color:var(--sky);background:#EAF4FA;color:var(--ink);}
+
+  .summary-card{
+    background:#fff;
+    border:2px solid var(--paper-line);
+    border-radius:22px;
+    padding:20px 22px 22px;
+    margin-top:20px;
+    box-shadow:var(--card-shadow);
+  }
+  .summary-card h2{
+    font-family:'Gaegu',cursive;
+    font-size:1.3rem;
+    color:var(--sage-deep);
+    margin:0 0 14px;
+  }
+  .summary-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .summary-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:#F4F8F1;
+    border:2px solid #DCEBD8;
+    border-radius:14px;
+    padding:8px 14px;
+    min-width:120px;
+  }
+  .summary-item .s-name{
+    font-family:'Gaegu',cursive;
+    font-size:1.05rem;
+    color:var(--ink);
+  }
+  .summary-item .s-count{
+    margin-left:auto;
+    font-weight:700;
+    color:var(--sage-deep);
+    font-size:.95rem;
+    white-space:nowrap;
+  }
+  .summary-item .s-bar{
+    flex:0 0 44px;
+    height:6px;
+    background:#E2EEDD;
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .summary-item .s-bar-fill{
+    height:100%;
+    background:var(--sage);
+  }
+  .summary-empty{
+    font-size:.85rem;
+    color:var(--ink-soft);
+  }
 </style>
 </head>
 <body>
@@ -332,6 +398,11 @@
     <div class="add-week-row">
       <button class="add-week-btn" id="addWeekBtn">+ 주차 추가</button>
     </div>
+  </div>
+
+  <div class="summary-card">
+    <h2>🌱 아이별 참여 요약</h2>
+    <div id="summaryList" class="summary-list"></div>
   </div>
 
   <footer>모든 기기에서 실시간으로 함께 볼 수 있어요 🌿</footer>
@@ -513,6 +584,33 @@ function render(){
   });
 
   attachEvents();
+  renderSummary();
+}
+
+function renderSummary(){
+  const list = document.getElementById('summaryList');
+  list.innerHTML = '';
+  const totalWeeks = state.weeks.length;
+  if(state.children.length === 0){
+    list.innerHTML = '<div class="summary-empty">등록된 아이가 없어요.</div>';
+    return;
+  }
+  if(totalWeeks === 0){
+    list.innerHTML = '<div class="summary-empty">아직 주차가 없어요.</div>';
+    return;
+  }
+  state.children.forEach(child=>{
+    const count = state.weeks.reduce((acc, w)=> acc + ((w.attendance && w.attendance[child.id]) ? 1 : 0), 0);
+    const pct = Math.round((count / totalWeeks) * 100);
+    const item = document.createElement('div');
+    item.className = 'summary-item';
+    item.innerHTML = `
+      <span class="s-name">${escapeAttr(child.name)}</span>
+      <span class="s-bar"><span class="s-bar-fill" style="width:${pct}%"></span></span>
+      <span class="s-count">${count} / ${totalWeeks}주</span>
+    `;
+    list.appendChild(item);
+  });
 }
 
 function el(tag, cls, text){
