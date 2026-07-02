@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>그림책 모임 출석부</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #FBF6EC;
+    --paper-line: #E7DFCC;
+    --ink: #4A3F35;
+    --ink-soft: #8A7E6E;
+    --sage: #8CA789;
+    --sage-deep: #5F7D5C;
+    --berry: #E88D9D;
+    --butter: #F4C95D;
+    --sky: #7FB3D5;
+    --card-shadow: 3px 4px 0 rgba(74,63,53,0.10);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 1px 1px, #EFE7D4 1px, transparent 1px) 0 0/22px 22px,
+      var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans KR', sans-serif;
+    padding:28px 16px 80px;
+  }
+  .wrap{max-width:1100px;margin:0 auto;}
+
+  header{text-align:center;margin-bottom:34px;position:relative;}
+  header h1{
+    font-family:'Gaegu', cursive;
+    font-weight:700;
+    font-size:2.6rem;
+    color:var(--sage-deep);
+    margin:0 0 4px;
+    letter-spacing:.5px;
+  }
+  header .underline{width:210px;height:10px;margin:0 auto 10px;}
+  header p{
+    font-size:.92rem;
+    color:var(--ink-soft);
+    margin:0;
+  }
+
+  .board{
+    background:#fff;
+    border:2px solid var(--paper-line);
+    border-radius:22px;
+    padding:22px 20px 26px;
+    box-shadow: var(--card-shadow);
+    overflow-x:auto;
+  }
+
+  .grid{
+    display:grid;
+    align-items:center;
+    gap:14px 10px;
+    min-width:560px;
+  }
+
+  .corner{font-family:'Gaegu',cursive;font-size:1rem;color:var(--ink-soft);}
+
+  .child-head{
+    position:relative;
+    background:var(--butter);
+    border:2px solid #E8B93F;
+    border-radius:14px;
+    padding:8px 22px 8px 10px;
+    text-align:center;
+    transform:rotate(-1.2deg);
+  }
+  .child-head:nth-child(even){transform:rotate(1.2deg);}
+  .child-head input{
+    width:100%;
+    border:none;
+    background:transparent;
+    font-family:'Gaegu',cursive;
+    font-size:1.05rem;
+    text-align:center;
+    color:var(--ink);
+    outline:none;
+  }
+  .child-head .del{
+    position:absolute;
+    top:2px;right:4px;
+    border:none;background:none;
+    cursor:pointer;
+    color:#B98A1E;
+    font-size:.85rem;
+    line-height:1;
+    padding:2px;
+  }
+  .child-head .del:hover{color:#8a5f00;}
+
+  .add-child{
+    width:38px;height:38px;
+    border-radius:50%;
+    border:2px dashed var(--sky);
+    background:#fff;
+    color:var(--sky);
+    font-size:1.3rem;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    justify-self:center;
+    transition:transform .15s;
+  }
+  .add-child:hover{transform:scale(1.08);background:#EAF4FA;}
+
+  .week-label{
+    font-family:'Gaegu',cursive;
+    font-size:1.15rem;
+    color:var(--sage-deep);
+    display:flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+  .week-label input{
+    width:64px;
+    border:none;border-bottom:2px dotted var(--sage);
+    background:transparent;
+    font-family:'Gaegu',cursive;
+    font-size:1.1rem;
+    color:var(--sage-deep);
+    outline:none;
+    padding:2px 0;
+  }
+  .week-label .del{
+    border:none;background:none;color:#c99;
+    cursor:pointer;font-size:.8rem;opacity:.6;
+  }
+  .week-label .del:hover{opacity:1;}
+
+  .photo-box{
+    width:96px;height:96px;
+    border:2.5px dashed var(--berry);
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    text-align:center;
+    font-size:.72rem;
+    color:#c96f82;
+    cursor:pointer;
+    background:#FFF6F7;
+    overflow:hidden;
+    position:relative;
+    flex-direction:column;
+    gap:4px;
+    justify-self:start;
+  }
+  .photo-box img{width:100%;height:100%;object-fit:cover;}
+  .photo-box:hover{background:#FDECEF;}
+  .photo-box .cam{font-size:1.3rem;}
+
+  .cell{
+    width:56px;height:56px;
+    border-radius:50%;
+    border:2px dashed #D8CBB4;
+    background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;
+    cursor:pointer;
+    justify-self:center;
+    transition:transform .12s, border-color .12s, background .12s;
+  }
+  .cell:hover{transform:scale(1.06);border-color:var(--sage);background:#F4F8F1;}
+  .cell.filled{border-style:solid;border-color:var(--sage);background:#F4F8F1;}
+
+  .add-week-row{
+    margin-top:18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .add-week-btn{
+    border:2px dashed var(--sage);
+    background:#F4F8F1;
+    color:var(--sage-deep);
+    font-family:'Gaegu',cursive;
+    font-size:1rem;
+    padding:8px 16px;
+    border-radius:14px;
+    cursor:pointer;
+  }
+  .add-week-btn:hover{background:#E9F2E5;}
+
+  /* sticker picker */
+  .picker-overlay{
+    position:fixed; inset:0;
+    background:rgba(74,63,53,0.28);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+  }
+  .picker-overlay.show{display:flex;}
+  .picker{
+    background:#fff;
+    border-radius:20px 20px 0 0;
+    padding:20px 22px 26px;
+    width:100%;
+    max-width:420px;
+    box-shadow:0 -4px 18px rgba(0,0,0,0.15);
+    text-align:center;
+  }
+  .picker h3{
+    font-family:'Gaegu',cursive;
+    margin:0 0 14px;
+    color:var(--ink);
+    font-size:1.2rem;
+  }
+  .sticker-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .sticker-opt{
+    font-size:1.9rem;
+    background:#FBF6EC;
+    border:2px solid var(--paper-line);
+    border-radius:14px;
+    padding:10px 0;
+    cursor:pointer;
+  }
+  .sticker-opt:hover{border-color:var(--sage);background:#F4F8F1;}
+  .picker-clear{
+    border:none;background:none;
+    color:#B15A6C;
+    font-size:.85rem;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+
+  input[type=file]{display:none;}
+
+  footer{
+    text-align:center;
+    margin-top:26px;
+    font-size:.78rem;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:600px){
+    header h1{font-size:2rem;}
+    .photo-box{width:74px;height:74px;}
+    .cell{width:46px;height:46px;font-size:1.25rem;}
+  }
+
+  /* 로그인 상태 표시 */
+  .auth-bar{
+    display:flex;justify-content:center;align-items:center;gap:8px;
+    margin-bottom:10px;font-size:.82rem;color:var(--ink-soft);
+  }
+  .auth-bar button{
+    border:1.5px solid var(--sky);
+    background:#fff;color:var(--sky);
+    border-radius:10px;padding:4px 12px;
+    font-family:'Noto Sans KR',sans-serif;
+    font-size:.8rem;cursor:pointer;
+  }
+  .auth-bar button:hover{background:#EAF4FA;}
+  .auth-bar.editing{color:var(--sage-deep);}
+  .auth-bar.editing button{border-color:var(--sage);color:var(--sage-deep);}
+
+  /* 읽기 전용 상태 */
+  .grid.readonly .del{display:none;}
+  .grid.readonly .add-child{visibility:hidden;}
+  .grid.readonly input{pointer-events:none;}
+  .grid.readonly .photo-box{cursor:default;}
+  .grid.readonly .photo-box:hover{background:#FFF6F7;}
+  .grid.readonly .cell{cursor:default;}
+  .grid.readonly .cell:hover{transform:none;border-color:#D8CBB4;background:#fff;}
+  .grid.readonly .cell.filled:hover{border-color:var(--sage);background:#F4F8F1;}
+  #addWeekBtn.hidden{display:none;}
+
+  .auth-form{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+  .auth-form input{
+    border:2px solid var(--paper-line);
+    border-radius:10px;
+    padding:9px 12px;
+    font-family:'Noto Sans KR',sans-serif;
+    font-size:.9rem;
+    outline:none;
+  }
+  .auth-form input:focus{border-color:var(--sky);}
+  .auth-form button{
+    border:none;background:var(--sage);color:#fff;
+    border-radius:10px;padding:10px 0;
+    font-family:'Gaegu',cursive;font-size:1.05rem;
+    cursor:pointer;
+  }
+  .auth-form button:hover{background:var(--sage-deep);}
+  .auth-error{color:#c1495a;font-size:.8rem;min-height:1.1em;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📖 그림책 모임 출석부</h1>
+    <svg class="underline" viewBox="0 0 210 10"><path d="M4 6 Q 50 -2, 100 6 T 205 5" stroke="#F4C95D" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+    <p>매주 읽은 그림책 사진을 남기고, 출석한 날엔 귀여운 스티커를 붙여주세요</p>
+  </header>
+
+  <div class="auth-bar" id="authBar"></div>
+
+  <div class="board">
+    <div id="grid" class="grid"></div>
+    <div class="add-week-row">
+      <button class="add-week-btn" id="addWeekBtn">+ 주차 추가</button>
+    </div>
+  </div>
+
+  <footer>모든 기기에서 실시간으로 함께 볼 수 있어요 🌿</footer>
+</div>
+
+<div class="picker-overlay" id="pickerOverlay">
+  <div class="picker">
+    <h3 id="pickerTitle">스티커를 골라주세요</h3>
+    <div class="sticker-grid" id="stickerGrid"></div>
+    <button class="picker-clear" id="pickerClear">스티커 지우기</button>
+  </div>
+</div>
+
+<div class="picker-overlay" id="authOverlay">
+  <div class="picker">
+    <h3>🔐 관리자 로그인</h3>
+    <div class="auth-form">
+      <input type="email" id="authEmail" placeholder="이메일" autocomplete="username">
+      <input type="password" id="authPassword" placeholder="비밀번호" autocomplete="current-password">
+      <div class="auth-error" id="authError"></div>
+      <button id="authSubmit">로그인</button>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept="image/*">
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import {
+  getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+// 그림책 모임 출석부 - Firebase 프로젝트 설정
+const firebaseConfig = {
+  apiKey: "AIzaSyBOlbo_hIhHN-U0qIzokY2hzluuhBe1HSU",
+  authDomain: "steadyheart-picbook.firebaseapp.com",
+  projectId: "steadyheart-picbook",
+  storageBucket: "steadyheart-picbook.firebasestorage.app",
+  messagingSenderId: "979554403772",
+  appId: "1:979554403772:web:29ce54f20a13001f3b97b9"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+const auth = getAuth(firebaseApp);
+
+let isAdmin = false;
+let currentEmail = '';
+
+// 문서 하나에 다 몰아넣지 않고, 주차마다 별도 문서로 저장 (Firestore 1MB/문서 제한 회피 + 빠른 동기화)
+const childrenDocRef = doc(db, 'attendance_meta', 'children');
+const weeksColRef = collection(db, 'attendance_weeks');
+
+const STICKERS = ['🌿','🌸','⭐','🐣','💛','🍀','🌈','❤️'];
+
+let state = { children: [], weeks: [] };
+let activeCell = null; // {weekId, childId}
+let activePhotoWeek = null;
+let uid = 0;
+const newId = (p) => p + '_' + (Date.now()) + '_' + (uid++);
+
+async function saveChildren(){
+  try{
+    await setDoc(childrenDocRef, { children: state.children });
+  }catch(e){ console.error('아이 이름 저장 실패', e); }
+}
+
+async function saveWeek(week){
+  try{
+    const { id, ...data } = week;
+    await setDoc(doc(weeksColRef, id), data);
+  }catch(e){ console.error('주차 저장 실패', e); }
+}
+
+async function removeWeek(weekId){
+  try{ await deleteDoc(doc(weeksColRef, weekId)); }
+  catch(e){ console.error('주차 삭제 실패', e); }
+}
+
+function startSync(){
+  onAuthStateChanged(auth, (user)=>{
+    isAdmin = !!user;
+    currentEmail = user ? user.email : '';
+    renderAuthBar();
+    render();
+  });
+
+  onSnapshot(childrenDocRef, (snap)=>{
+    if(snap.exists() && Array.isArray(snap.data().children)){
+      state.children = snap.data().children;
+    } else if(state.children.length === 0){
+      // 최초 실행: 기본 이름 3개로 시작
+      state.children = [
+        {id:newId('c'), name:'이름1'},
+        {id:newId('c'), name:'이름2'},
+        {id:newId('c'), name:'이름3'}
+      ];
+      saveChildren();
+    }
+    render();
+  }, (err)=>{ console.error('이름 동기화 오류', err); render(); });
+
+  onSnapshot(weeksColRef, (snap)=>{
+    const weeks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    weeks.sort((a,b) => (a.order ?? 0) - (b.order ?? 0));
+    state.weeks = weeks;
+    if(weeks.length === 0 && !state._seeded){
+      state._seeded = true;
+      const w1 = {id:newId('w'), label:'1주차', photo:null, attendance:{}, order:1};
+      const w2 = {id:newId('w'), label:'2주차', photo:null, attendance:{}, order:2};
+      saveWeek(w1); saveWeek(w2);
+    }
+    render();
+  }, (err)=>{ console.error('주차 동기화 오류', err); render(); });
+}
+
+function render(){
+  const grid = document.getElementById('grid');
+  const nCols = state.children.length;
+  grid.style.gridTemplateColumns = `84px 110px repeat(${nCols}, 1fr) 48px`;
+  grid.innerHTML = '';
+  grid.className = 'grid' + (isAdmin ? '' : ' readonly');
+
+  const addWeekBtn = document.getElementById('addWeekBtn');
+  addWeekBtn.classList.toggle('hidden', !isAdmin);
+
+  grid.appendChild(el('div', 'corner', '주차'));
+  grid.appendChild(el('div', 'corner', '그림책'));
+  state.children.forEach(child => {
+    const head = document.createElement('div');
+    head.className = 'child-head';
+    head.innerHTML = `<input value="${escapeAttr(child.name)}" data-child="${child.id}" ${isAdmin?'':'disabled'}>
+      <button class="del" data-delchild="${child.id}" title="삭제">✕</button>`;
+    grid.appendChild(head);
+  });
+  const addC = el('button', 'add-child', '+');
+  addC.id = 'addChildBtn';
+  grid.appendChild(addC);
+
+  state.weeks.forEach(week => {
+    const label = document.createElement('div');
+    label.className = 'week-label';
+    label.innerHTML = `<input value="${escapeAttr(week.label)}" data-week="${week.id}" ${isAdmin?'':'disabled'}>
+      <button class="del" data-delweek="${week.id}" title="삭제">✕</button>`;
+    grid.appendChild(label);
+
+    const photoBox = document.createElement('div');
+    photoBox.className = 'photo-box';
+    photoBox.dataset.photoweek = week.id;
+    photoBox.innerHTML = week.photo
+      ? `<img src="${week.photo}" alt="${escapeAttr(week.label)} 그림책">`
+      : `<span class="cam">📷</span><span>사진 추가</span>`;
+    grid.appendChild(photoBox);
+
+    state.children.forEach(child => {
+      const val = (week.attendance || {})[child.id];
+      const cell = document.createElement('div');
+      cell.className = 'cell' + (val ? ' filled' : '');
+      cell.dataset.week = week.id;
+      cell.dataset.child = child.id;
+      cell.textContent = val || '';
+      grid.appendChild(cell);
+    });
+
+    grid.appendChild(el('div','',''));
+  });
+
+  attachEvents();
+}
+
+function el(tag, cls, text){
+  const d = document.createElement(tag);
+  if(cls) d.className = cls;
+  if(text !== undefined) d.textContent = text;
+  return d;
+}
+function escapeAttr(s){
+  return String(s).replace(/"/g,'&quot;');
+}
+
+function attachEvents(){
+  document.querySelectorAll('.child-head input').forEach(inp=>{
+    inp.addEventListener('change', e=>{
+      const c = state.children.find(c=>c.id===e.target.dataset.child);
+      if(c){ c.name = e.target.value || c.name; saveChildren(); }
+    });
+  });
+  document.querySelectorAll('[data-delchild]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const id = e.target.dataset.delchild;
+      state.children = state.children.filter(c=>c.id!==id);
+      saveChildren();
+      state.weeks.forEach(w=>{
+        if(w.attendance && w.attendance[id] !== undefined){
+          delete w.attendance[id];
+          saveWeek(w);
+        }
+      });
+    });
+  });
+  document.getElementById('addChildBtn').addEventListener('click', ()=>{
+    state.children.push({id:newId('c'), name:'이름'+(state.children.length+1)});
+    saveChildren();
+  });
+
+  document.querySelectorAll('.week-label input').forEach(inp=>{
+    inp.addEventListener('change', e=>{
+      const w = state.weeks.find(w=>w.id===e.target.dataset.week);
+      if(w){ w.label = e.target.value || w.label; saveWeek(w); }
+    });
+  });
+  document.querySelectorAll('[data-delweek]').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      removeWeek(e.target.dataset.delweek);
+    });
+  });
+  document.querySelectorAll('.photo-box').forEach(box=>{
+    box.addEventListener('click', ()=>{
+      if(!isAdmin) return;
+      activePhotoWeek = box.dataset.photoweek;
+      document.getElementById('fileInput').click();
+    });
+  });
+
+  document.querySelectorAll('.cell').forEach(cell=>{
+    cell.addEventListener('click', ()=>{
+      if(!isAdmin) return;
+      activeCell = {weekId:cell.dataset.week, childId:cell.dataset.child};
+      openPicker();
+    });
+  });
+}
+
+document.getElementById('addWeekBtn').addEventListener('click', ()=>{
+  const maxOrder = state.weeks.reduce((m,w)=>Math.max(m, w.order ?? 0), 0);
+  const w = {id:newId('w'), label:(state.weeks.length+1)+'주차', photo:null, attendance:{}, order:maxOrder+1};
+  saveWeek(w);
+});
+
+document.getElementById('fileInput').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file || !activePhotoWeek) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const maxW = 420;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width*scale;
+      canvas.height = img.height*scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg',0.7);
+      const w = state.weeks.find(w=>w.id===activePhotoWeek);
+      if(w){ w.photo = dataUrl; saveWeek(w); }
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
+function openPicker(){
+  const grid = document.getElementById('stickerGrid');
+  grid.innerHTML = '';
+  STICKERS.forEach(s=>{
+    const b = document.createElement('button');
+    b.className = 'sticker-opt';
+    b.textContent = s;
+    b.addEventListener('click', ()=>{
+      const w = state.weeks.find(w=>w.id===activeCell.weekId);
+      if(w){
+        w.attendance = w.attendance || {};
+        w.attendance[activeCell.childId] = s;
+        saveWeek(w);
+      }
+      closePicker();
+    });
+    grid.appendChild(b);
+  });
+  const child = state.children.find(c=>c.id===activeCell.childId);
+  const week = state.weeks.find(w=>w.id===activeCell.weekId);
+  document.getElementById('pickerTitle').textContent =
+    `${week ? week.label : ''} · ${child ? child.name : ''}`;
+  document.getElementById('pickerOverlay').classList.add('show');
+}
+function closePicker(){
+  document.getElementById('pickerOverlay').classList.remove('show');
+  activeCell = null;
+}
+document.getElementById('pickerOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'pickerOverlay') closePicker();
+});
+document.getElementById('pickerClear').addEventListener('click', ()=>{
+  if(activeCell){
+    const w = state.weeks.find(w=>w.id===activeCell.weekId);
+    if(w && w.attendance){
+      delete w.attendance[activeCell.childId];
+      saveWeek(w);
+    }
+  }
+  closePicker();
+});
+
+function renderAuthBar(){
+  const bar = document.getElementById('authBar');
+  bar.className = 'auth-bar' + (isAdmin ? ' editing' : '');
+  if(isAdmin){
+    bar.innerHTML = `<span>✅ 편집 모드 (${escapeAttr(currentEmail)})</span><button id="logoutBtn">로그아웃</button>`;
+    document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
+  }else{
+    bar.innerHTML = `<span>👀 보기 전용</span><button id="loginBtn">편집하려면 로그인</button>`;
+    document.getElementById('loginBtn').addEventListener('click', ()=>{
+      document.getElementById('authError').textContent = '';
+      document.getElementById('authOverlay').classList.add('show');
+    });
+  }
+}
+
+document.getElementById('authOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'authOverlay') document.getElementById('authOverlay').classList.remove('show');
+});
+document.getElementById('authSubmit').addEventListener('click', async ()=>{
+  const email = document.getElementById('authEmail').value.trim();
+  const pw = document.getElementById('authPassword').value;
+  const errBox = document.getElementById('authError');
+  errBox.textContent = '';
+  try{
+    await signInWithEmailAndPassword(auth, email, pw);
+    document.getElementById('authOverlay').classList.remove('show');
+    document.getElementById('authPassword').value = '';
+  }catch(e){
+    errBox.textContent = '로그인에 실패했어요. 이메일/비밀번호를 확인해주세요.';
+  }
+});
+
+startSync();
+</script>
+</body>
+</html>
