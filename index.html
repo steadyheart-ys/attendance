@@ -277,26 +277,41 @@
     header h1{font-size:1.7rem;}
     header p{font-size:.8rem;}
     :root{
-      --col-week: 36px;
-      --col-photo: 40px;
-      --col-add: 18px;
-      --photo-size: 38px;
-      --cell-size: 30px;
+      --col-week: 32px;
+      --col-photo: 34px;
+      --col-add: 16px;
+      --photo-size: 34px;
+      --cell-size: 28px;
       --grid-gap-y: 5px;
       --grid-gap-x: 3px;
       --grid-min-width: 0;
     }
-    .board{padding:10px 6px 14px;}
+    .board{padding:10px 5px 14px;}
     .photo-box{font-size:0;gap:0;border-width:1.5px;}
-    .photo-box .cam{font-size:.7rem;}
-    .cell{font-size:.85rem;border-width:1.5px;}
-    .child-head{padding:4px 13px 4px 3px;border-radius:8px;}
-    .child-head input{font-size:.68rem;padding:0;}
-    .child-head .del{font-size:.6rem;top:1px;right:1px;padding:1px;}
-    .week-label{font-size:.68rem;gap:1px;}
-    .week-label input{width:28px;font-size:.68rem;}
-    .corner{font-size:.62rem;padding:2px 0;}
-    .add-child{width:18px;height:18px;font-size:.8rem;}
+    .photo-box .cam{font-size:.65rem;}
+    .cell{font-size:.8rem;border-width:1.5px;}
+    .child-head{padding:5px 3px;border-radius:8px;}
+    .child-head input{font-size:.72rem;padding:0;text-align:center;}
+    .child-head .del{
+      position:absolute;top:-4px;right:-4px;
+      width:13px;height:13px;
+      background:#fff;border:1px solid #E8B93F;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:.55rem;line-height:1;padding:0;
+    }
+    .week-label{font-size:.66rem;gap:1px;}
+    .week-label input{width:26px;font-size:.66rem;}
+    .corner{font-size:.6rem;padding:2px 0;}
+    .add-child{width:16px;height:16px;font-size:.75rem;}
+
+    /* 요약 카드도 표 글자 크기에 맞춰 축소 */
+    .summary-card{padding:10px 12px 12px;}
+    .summary-card h2{font-size:.85rem;margin:0 0 8px;}
+    .summary-list{gap:5px;}
+    .summary-item{padding:3px 7px;border-radius:9px;gap:4px;}
+    .summary-item .s-name{font-size:.68rem;}
+    .summary-item .s-count{font-size:.62rem;}
+    .summary-item .s-bar{flex-basis:18px;height:4px;}
   }
 
   /* 로그인 상태 표시 */
