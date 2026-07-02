@@ -296,6 +296,25 @@
   }
   .auth-form button:hover{background:var(--sage-deep);}
   .auth-error{color:#c1495a;font-size:.8rem;min-height:1.1em;}
+
+  .photo-actions{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+  .photo-actions button{
+    border:none;background:var(--sage);color:#fff;
+    border-radius:12px;padding:12px 0;
+    font-family:'Gaegu',cursive;font-size:1.05rem;
+    cursor:pointer;
+  }
+  .photo-actions button:hover{background:var(--sage-deep);}
+  .paste-target{
+    border:2px dashed var(--sky);
+    border-radius:12px;
+    padding:22px 14px;
+    font-size:.85rem;
+    color:var(--ink-soft);
+    cursor:text;
+    outline:none;
+  }
+  .paste-target:focus{border-color:var(--sky);background:#EAF4FA;color:var(--ink);}
 </style>
 </head>
 <body>
@@ -334,6 +353,16 @@
       <input type="password" id="authPassword" placeholder="비밀번호" autocomplete="current-password">
       <div class="auth-error" id="authError"></div>
       <button id="authSubmit">로그인</button>
+    </div>
+  </div>
+</div>
+
+<div class="picker-overlay" id="photoOverlay">
+  <div class="picker">
+    <h3 id="photoOverlayTitle">그림책 사진 추가</h3>
+    <div class="photo-actions">
+      <button id="photoFileBtn">📁 파일 선택</button>
+      <div id="pasteTarget" class="paste-target" tabindex="0">여기를 클릭한 뒤<br>Ctrl+V(붙여넣기)로<br>이미지를 바로 넣을 수 있어요 📋</div>
     </div>
   </div>
 </div>
@@ -536,7 +565,11 @@ function attachEvents(){
     box.addEventListener('click', ()=>{
       if(!isAdmin) return;
       activePhotoWeek = box.dataset.photoweek;
-      document.getElementById('fileInput').click();
+      const w = state.weeks.find(w=>w.id===activePhotoWeek);
+      document.getElementById('photoOverlayTitle').textContent =
+        `${w ? w.label : ''} 그림책 사진 추가`;
+      document.getElementById('photoOverlay').classList.add('show');
+      setTimeout(()=> document.getElementById('pasteTarget').focus(), 50);
     });
   });
 
@@ -555,8 +588,7 @@ document.getElementById('addWeekBtn').addEventListener('click', ()=>{
   saveWeek(w);
 });
 
-document.getElementById('fileInput').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
+function processImageFile(file){
   if(!file || !activePhotoWeek) return;
   const reader = new FileReader();
   reader.onload = (ev)=>{
@@ -576,7 +608,40 @@ document.getElementById('fileInput').addEventListener('change', (e)=>{
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+document.getElementById('photoFileBtn').addEventListener('click', ()=>{
+  document.getElementById('photoOverlay').classList.remove('show');
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('fileInput').addEventListener('change', (e)=>{
+  processImageFile(e.target.files[0]);
   e.target.value = '';
+});
+
+document.getElementById('pasteTarget').addEventListener('paste', (e)=>{
+  e.preventDefault();
+  const items = e.clipboardData ? e.clipboardData.items : [];
+  let found = false;
+  for(const item of items){
+    if(item.type && item.type.startsWith('image/')){
+      const file = item.getAsFile();
+      if(file){
+        processImageFile(file);
+        found = true;
+        document.getElementById('photoOverlay').classList.remove('show');
+        break;
+      }
+    }
+  }
+  if(!found){
+    document.getElementById('pasteTarget').textContent = '이미지를 찾지 못했어요. 이미지를 먼저 복사해주세요 🙏';
+  }
+});
+
+document.getElementById('photoOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'photoOverlay') document.getElementById('photoOverlay').classList.remove('show');
 });
 
 function openPicker(){
