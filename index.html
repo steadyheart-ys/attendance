@@ -18,6 +18,13 @@
     --butter: #F4C95D;
     --sky: #7FB3D5;
     --card-shadow: 3px 4px 0 rgba(74,63,53,0.10);
+    --col-week: 84px;
+    --col-photo: 110px;
+    --col-add: 48px;
+    --photo-size: 96px;
+    --cell-size: 56px;
+    --grid-gap-y: 14px;
+    --grid-gap-x: 10px;
   }
   *{box-sizing:border-box;}
   body{
@@ -29,8 +36,20 @@
     font-family:'Noto Sans KR', sans-serif;
     padding:28px 16px 80px;
   }
-  .wrap{max-width:1100px;margin:0 auto;}
-
+  .wrap{max-width:1200px;margin:0 auto;}
+  .layout{display:flex;gap:16px;align-items:flex-start;}
+  .layout .board{flex:1;min-width:0;}
+  .layout .summary-card{
+    width:200px;
+    flex-shrink:0;
+    position:sticky;
+    top:16px;
+    margin:0;
+  }
+  @media (max-width:860px){
+    .layout{flex-direction:column;}
+    .layout .summary-card{width:100%;max-width:560px;margin:14px auto 0;position:static;}
+  }
   header{text-align:center;margin-bottom:34px;position:relative;}
   header h1{
     font-family:'Gaegu', cursive;
@@ -61,8 +80,8 @@
   .grid{
     display:grid;
     align-items:center;
-    gap:14px 10px;
-    min-width:560px;
+    gap:var(--grid-gap-y) var(--grid-gap-x);
+    min-width:var(--grid-min-width, 560px);
   }
 
   .corner{
@@ -146,7 +165,7 @@
   .week-label .del:hover{opacity:1;}
 
   .photo-box{
-    width:96px;height:96px;
+    width:var(--photo-size);height:var(--photo-size);
     border:2.5px dashed var(--berry);
     border-radius:12px;
     display:flex;align-items:center;justify-content:center;
@@ -166,7 +185,7 @@
   .photo-box .cam{font-size:1.3rem;}
 
   .cell{
-    width:56px;height:56px;
+    width:var(--cell-size);height:var(--cell-size);
     border-radius:50%;
     border:2px dashed #D8CBB4;
     background:#fff;
@@ -255,9 +274,29 @@
   }
 
   @media (max-width:600px){
-    header h1{font-size:2rem;}
-    .photo-box{width:74px;height:74px;}
-    .cell{width:46px;height:46px;font-size:1.25rem;}
+    header h1{font-size:1.7rem;}
+    header p{font-size:.8rem;}
+    :root{
+      --col-week: 46px;
+      --col-photo: 52px;
+      --col-add: 26px;
+      --photo-size: 48px;
+      --cell-size: 34px;
+      --grid-gap-y: 6px;
+      --grid-gap-x: 4px;
+      --grid-min-width: 0;
+    }
+    .board{padding:10px 8px 14px;}
+    .photo-box{font-size:.5rem;gap:1px;border-width:1.5px;}
+    .photo-box .cam{font-size:.85rem;}
+    .cell{font-size:1rem;border-width:1.5px;}
+    .child-head{padding:5px 16px 5px 6px;border-radius:10px;}
+    .child-head input{font-size:.78rem;}
+    .child-head .del{font-size:.7rem;}
+    .week-label{font-size:.8rem;gap:2px;}
+    .week-label input{width:34px;font-size:.8rem;}
+    .corner{font-size:.72rem;}
+    .add-child{width:26px;height:26px;font-size:1rem;}
   }
 
   /* 로그인 상태 표시 */
@@ -328,47 +367,46 @@
   .summary-card{
     background:#fff;
     border:2px solid var(--paper-line);
-    border-radius:22px;
-    padding:20px 22px 22px;
-    margin-top:20px;
+    border-radius:18px;
+    padding:14px 18px 16px;
+    margin:18px auto 0;
+    max-width:560px;
     box-shadow:var(--card-shadow);
   }
   .summary-card h2{
     font-family:'Gaegu',cursive;
-    font-size:1.3rem;
+    font-size:1.05rem;
     color:var(--sage-deep);
-    margin:0 0 14px;
+    margin:0 0 10px;
   }
   .summary-list{
     display:flex;
     flex-wrap:wrap;
-    gap:10px;
+    gap:8px;
   }
   .summary-item{
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:6px;
     background:#F4F8F1;
     border:2px solid #DCEBD8;
-    border-radius:14px;
-    padding:8px 14px;
-    min-width:120px;
+    border-radius:12px;
+    padding:5px 10px;
   }
   .summary-item .s-name{
     font-family:'Gaegu',cursive;
-    font-size:1.05rem;
+    font-size:.88rem;
     color:var(--ink);
   }
   .summary-item .s-count{
-    margin-left:auto;
     font-weight:700;
     color:var(--sage-deep);
-    font-size:.95rem;
+    font-size:.8rem;
     white-space:nowrap;
   }
   .summary-item .s-bar{
-    flex:0 0 44px;
-    height:6px;
+    flex:0 0 26px;
+    height:5px;
     background:#E2EEDD;
     border-radius:4px;
     overflow:hidden;
@@ -393,16 +431,18 @@
 
   <div class="auth-bar" id="authBar"></div>
 
-  <div class="board">
-    <div id="grid" class="grid"></div>
-    <div class="add-week-row">
-      <button class="add-week-btn" id="addWeekBtn">+ 주차 추가</button>
+  <div class="layout">
+    <div class="board">
+      <div id="grid" class="grid"></div>
+      <div class="add-week-row">
+        <button class="add-week-btn" id="addWeekBtn">+ 주차 추가</button>
+      </div>
     </div>
-  </div>
 
-  <div class="summary-card">
-    <h2>🌱 아이별 참여 요약</h2>
-    <div id="summaryList" class="summary-list"></div>
+    <div class="summary-card">
+      <h2>🌱 아이별 참여 요약</h2>
+      <div id="summaryList" class="summary-list"></div>
+    </div>
   </div>
 
   <footer>모든 기기에서 실시간으로 함께 볼 수 있어요 🌿</footer>
@@ -535,7 +575,7 @@ function startSync(){
 function render(){
   const grid = document.getElementById('grid');
   const nCols = state.children.length;
-  grid.style.gridTemplateColumns = `84px 110px repeat(${nCols}, 1fr) 48px`;
+  grid.style.gridTemplateColumns = `var(--col-week) var(--col-photo) repeat(${nCols}, 1fr) var(--col-add)`;
   grid.innerHTML = '';
   grid.className = 'grid' + (isAdmin ? '' : ' readonly');
 
